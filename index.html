@@ -1,0 +1,158 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Razorpay Clone</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-white text-gray-900">
+  <!-- Navbar -->
+  <header class="bg-white shadow-md fixed top-0 w-full z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="text-xl font-bold text-blue-600">Razorpay</div>
+      <nav class="hidden md:flex space-x-6">
+        <a href="#" id="payments-link" class="hover:text-blue-600">Payments</a>
+        <a href="#" id="banking-link" class="hover:text-blue-600">Banking</a>
+        <a href="#" class="hover:text-blue-600">Corporate Card</a>
+        <a href="#" class="hover:text-blue-600">Payroll</a>
+        <a href="#" id="support-link" class="hover:text-blue-600">Support</a>
+      </nav>
+      <div class="flex space-x-2">
+        <button id="signin-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sign In</button>
+        <button id="signup-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sign Up</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="pt-24 pb-16 bg-gradient-to-r from-blue-700 to-indigo-600 text-white">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-4">Power your finance, grow your business</h1>
+      <p class="text-lg md:text-xl mb-6">Accept payments, automate payouts, manage finances, and much more.</p>
+      <button id="signup-now-btn" class="bg-white text-blue-700 px-6 py-3 rounded font-semibold hover:bg-gray-200">Sign Up Now</button>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-10">
+      <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+        <h2 class="text-xl font-bold mb-2">Payment Gateway</h2>
+        <p class="text-gray-600 mb-4">Easily integrate with websites and apps to collect payments.</p>
+        <button id="payment-gateway-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Learn More</button>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+        <h2 class="text-xl font-bold mb-2">RazorpayX</h2>
+        <p class="text-gray-600 mb-4">Automate payouts, manage accounts and simplify banking.</p>
+        <button id="razorpayx-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Learn More</button>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+        <h2 class="text-xl font-bold mb-2">Subscriptions</h2>
+        <p class="text-gray-600 mb-4">Enable recurring payments for your products or services.</p>
+        <button id="subscriptions-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Learn More</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action -->
+  <section class="py-16 bg-blue-700 text-white text-center">
+    <h2 class="text-3xl font-bold mb-4">Join Razorpay and grow your business</h2>
+    <p class="mb-6">Start accepting payments instantly with our simple integration and easy onboarding.</p>
+    <button id="getstarted-btn" class="bg-white text-blue-700 px-6 py-3 rounded hover:bg-gray-100">Get Started</button>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-300 py-6 text-center">
+    <p>© 2025 Razorpay Clone. Built for demo purposes only.</p>
+  </footer>
+
+  <script>
+    // JavaScript for button navigation
+    document.getElementById('signin-btn').addEventListener('click', () => {
+      window.location.href = 'signin.html';
+    });
+
+    document.getElementById('signup-btn').addEventListener('click', () => {
+      window.location.href = 'signup.html';
+    });
+
+    document.getElementById('signup-now-btn').addEventListener('click', () => {
+      window.location.href = 'signup.html';
+    });
+
+    document.getElementById('getstarted-btn').addEventListener('click', () => {
+      window.location.href = 'getstarted.html';
+    });
+
+    document.getElementById('payment-gateway-btn').addEventListener('click', () => {
+      window.location.href = 'payment-gateway.html';
+    });
+
+    document.getElementById('razorpayx-btn').addEventListener('click', () => {
+      window.location.href = 'razorpayx.html';
+    });
+
+    document.getElementById('subscriptions-btn').addEventListener('click', () => {
+      window.location.href = 'subscriptions.html';
+    });
+
+    document.getElementById('payments-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.href = 'payment-gateway.html';
+    });
+
+    document.getElementById('banking-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.href = 'banking.html';
+    });
+
+    document.getElementById('support-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.href = 'support.html';
+    });
+  </script>
+</body>
+
+</html>

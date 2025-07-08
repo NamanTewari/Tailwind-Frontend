@@ -1,0 +1,93 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Gateway - Razorpay Clone</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900">
+  <!-- Navbar -->
+  <header class="bg-white shadow-md fixed top-0 w-full z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="text-xl font-bold text-blue-600">Razorpay</div>
+      <nav class="hidden md:flex space-x-6">
+        <a href="index.html" class="hover:text-blue-600">Home</a>
+        <a href="#" class="hover:text-blue-600">Payments</a>
+        <a href="#" class="hover:text-blue-600">Banking</a>
+        <a href="#" class="hover:text-blue-600">Corporate Card</a>
+        <a href="#" class="hover:text-blue-600">Payroll</a>
+        <a href="support.html" class="hover:text-blue-600">Support</a>
+      </nav>
+      <div class="flex space-x-2">
+        <button onclick="window.location.href='signin.html'" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sign In</button>
+        <button onclick="window.location.href='signup.html'" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sign Up</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Payment Gateway Section -->
+  <section class="pt-24 pb-16">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <h1 class="text-3xl md:text-4xl font-bold mb-4">Razorpay Payment Gateway</h1>
+      <p class="text-lg mb-6">Seamlessly integrate our payment gateway to accept payments online.</p>
+      <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg shadow">
+        <h2 class="text-xl font-bold mb-4">Features</h2>
+        <ul class="text-left text-gray-600 list-disc list-inside">
+          <li>Support for multiple payment methods</li>
+          <li>Easy integration with websites and apps</li>
+          <li>Secure and compliant with PCI DSS</li>
+        </ul>
+        <button onclick="window.location.href='getstarted.html'" class="mt-6 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700">Start Integration</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-300 py-6 text-center">
+    <p>© 2025 Razorpay Clone. Built for demo purposes only.</p>
+  </footer>
+</body>
+
+</html>
